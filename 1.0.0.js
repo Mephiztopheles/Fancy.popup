@@ -69,7 +69,7 @@
 
         SELF.name     = NAME;
         SELF.version  = VERSION;
-        SELF.settings = $.extend ( {}, FancyPopup.settings, settings );
+        SELF.settings = $.extend ( {}, Fancy.settings[ NAME ], settings );
 
         SELF.close = close;
 
@@ -161,13 +161,14 @@
 
     FancyPopup.resize = resize;
 
-    FancyPopup.settings = {
+    Fancy.settings[ NAME ] = {
         theme    : 'blunt',
         title    : false,
         text     : false,
         width    : 250,
         closeable: true
     };
+
 
     Fancy.popup = Fancy.api.popup = function ( settings ) {
         return new FancyPopup ( settings );
