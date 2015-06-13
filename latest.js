@@ -2,10 +2,10 @@
 
     Fancy.require ( {
         jQuery: false,
-        Fancy : "1.0.0"
+        Fancy : "1.0.1"
     } );
     var NAME       = 'FancyPopup',
-        VERSION    = "1.0.0",
+        VERSION    = "1.0.1",
         visibility = false,
         html       = {
             wrapper: $ ( '<div/>', {
