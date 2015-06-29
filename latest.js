@@ -1,75 +1,74 @@
 (function ( window, $ ) {
 
-    Fancy.require ( {
+    Fancy.require( {
         jQuery: false,
         Fancy : "1.0.0"
     } );
-    var NAME       = 'FancyPopup',
-        VERSION    = "1.0.0",
-        visibility = false,
-        html       = {
-            wrapper: $ ( '<div/>', {
-                id: NAME
-            } ),
-            inner  : $ ( '<div/>', {
-                id: NAME + '-inner'
-            } ),
-            close  : $ ( '<div/>', {
-                id  : NAME + '-close',
-                html: 'x'
-            } ),
-            title  : $ ( '<div/>', {
-                id: NAME + '-title'
-            } ),
-            text   : $ ( '<div/>', {
-                id: NAME + '-content'
-            } ),
-            buttons: $ ( '<div/>', {
-                id: NAME + '-buttons'
-            } )
-        },
-        logged     = false;
+    var NAME      = 'FancyPopup',
+        VERSION   = "1.0.1",
+        id        = 0,
+        logged    = false;
 
-    function display () {
-        html.wrapper.append ( html.inner.append ( html.close ).append ( html.title ).append ( html.text ).append ( html.buttons ) );
-        $ ( 'body' ).append ( html.wrapper );
-        $ ( document ).on ( 'keydown.FancyPopup', function ( e ) {
+    function display() {
+        this.html.wrapper.append( this.html.inner.append( this.html.close ).append( this.html.title ).append( this.html.text ).append( this.html.buttons ) );
+        $( 'body' ).append( this.html.wrapper );
+        $( document ).on( 'keydown.FancyPopup', function ( e ) {
             var keyCode = e.keyCode || e.which;
             if ( keyCode == 27 ) {
-                close ();
+                close();
             }
         } );
 
-        html.close.click ( function () {
-            close ();
+        this.html.close.click( function () {
+            close();
         } );
     }
 
-    function close () {
-        html.inner.addClass ( 'hide' ).removeClass ( 'show' );
-        html.wrapper.fadeOut ( 300 );
-        setTimeout ( function () {
-            visibility = false;
-        }, 300 );
+    function close() {
+        this.html.inner.addClass( 'hide' ).removeClass( 'show' );
+        this.html.wrapper.fadeOut( 300 );
     }
 
-    function resize ( animate ) {
-        var top   = ( $ ( window ).height () - html.inner.height () ) / 2,
-            left  = ( $ ( window ).width () - html.inner.outerWidth () - 2 ) / 2,
+    function resize( animate ) {
+        var top   = ( $( window ).height() - this.html.inner.height() ) / 2,
+            left  = ( $( window ).width() - this.html.inner.outerWidth() - 2 ) / 2,
             style = animate ? 'animate' : 'css';
 
-        html.inner[ style ] ( {
+        this.html.inner[ style ]( {
             left: left,
             top : top
         } );
     }
 
-    function FancyPopup ( settings ) {
-        var SELF = this;
-
+    function FancyPopup( settings ) {
+        var SELF      = this;
+        SELF.id       = id;
+        id++;
         SELF.name     = NAME;
         SELF.version  = VERSION;
-        SELF.settings = $.extend ( {}, Fancy.settings[ NAME ], settings );
+        SELF.settings = $.extend( {}, Fancy.settings[ NAME ], settings );
+
+        SELF.html = {
+            wrapper: $( '<div/>', {
+                id: NAME
+            } ),
+            inner  : $( '<div/>', {
+                id: NAME + '-inner'
+            } ),
+            close  : $( '<div/>', {
+                id  : NAME + '-close',
+                html: 'x'
+            } ),
+            title  : $( '<div/>', {
+                id: NAME + '-title'
+            } ),
+            text   : $( '<div/>', {
+                id: NAME + '-content'
+            } ),
+            buttons: $( '<div/>', {
+                id: NAME + '-buttons'
+            } )
+        };
 
         SELF.close = close;
 
@@ -77,16 +76,12 @@
 
         if ( !logged ) {
             logged = true;
-            Fancy.version ( SELF );
-            display ();
+            Fancy.version( SELF );
+            display();
         }
 
-        if ( !visibility ) {
-            SELF.update ();
-            SELF.show ();
-        } else {
-            SELF.update ();
-        }
+        SELF.update();
+        SELF.show();
         return SELF;
     }
 
@@ -97,69 +92,68 @@
     FancyPopup.api.update  = function ( settings ) {
         var SELF = this;
         if ( settings )
-            SELF.settings = $.extend ( {}, FancyPopup.settings, settings );
-        html.text.html ( SELF.settings.text || '' );
-        html.title.html ( SELF.settings.title || '' );
-        html.buttons.html ( '' );
-        function applyClick ( button, b, i ) {
-            button.on ( 'click', function () {
+            SELF.settings = $.extend( {}, FancyPopup.settings, settings );
+        SELF.html.text.html( SELF.settings.text || '' );
+        SELF.html.title.html( SELF.settings.title || '' );
+        SELF.html.buttons.html( '' );
+        function applyClick( button, b, i ) {
+            button.on( 'click', function () {
                 if ( b.click )
-                    b.click.call ( SELF, button );
+                    b.click.call( SELF, button );
                 else
-                    close ();
-            } ).attr ( 'unselectable', 'on' ).css ( 'user-select', 'none' ).on ( 'selectstart', false );
+                    close();
+            } ).attr( 'unselectable', 'on' ).css( 'user-select', 'none' ).on( 'selectstart', false );
             if ( i == 'ok' ) {
-                $ ( document ).on ( 'keydown.FancyPopup', function ( e ) {
+                $( document ).on( 'keydown.FancyPopup', function ( e ) {
                     var keyCode = e.keyCode || e.which;
                     if ( keyCode == 13 ) {
                         if ( b.click )
-                            b.click.call ( SELF, button );
+                            b.click.call( SELF, button );
                         else
-                            close ();
+                            close();
                     }
                 } );
             }
         }
 
         for ( var i in SELF.settings.buttons ) {
-            if ( SELF.settings.buttons.hasOwnProperty ( i ) ) {
+            if ( SELF.settings.buttons.hasOwnProperty( i ) ) {
                 var b      = SELF.settings.buttons [ i ],
-                    button = $ ( '<div/>', {
+                    button = $( '<div/>', {
                         id   : SELF.name + '-button-' + i,
                         class: SELF.name + '-button button',
                         html : b.title
                     } );
 
-                applyClick ( button, b, i );
-                html.buttons.append ( button );
+                applyClick( button, b, i );
+                SELF.html.buttons.append( button );
             }
         }
-        html.wrapper.removeAttr ( 'class' ).addClass ( NAME + '-theme-' + this.settings.theme );
+        SELF.html.wrapper.removeAttr( 'class' ).addClass( NAME + '-theme-' + this.settings.theme );
 
         if ( !this.settings.closeable )
-            html.close.hide ();
+            SELF.html.close.hide();
         else
-            html.close.show ();
-        SELF.resize ( visibility );
+            SELF.html.close.show();
+        SELF.resize();
     };
     FancyPopup.api.show    = function () {
         var SELF = this;
-        html.wrapper.hide ().fadeIn ( 200 );
-        html.inner.hide ();
+        SELF.html.wrapper.hide().fadeIn( 200 );
+        SELF.html.inner.hide();
 
-        setTimeout ( function () {
-            html.inner.show ().addClass ( 'show' ).removeClass ( 'hide' );
-            visibility = true;
+        setTimeout( function () {
+            SELF.html.inner.show().addClass( 'show' ).removeClass( 'hide' );
         }, 200 );
 
-        html.inner.css ( SELF.settings );
-        resize ();
+        SELF.html.inner.css( SELF.settings );
+        resize();
 
     };
 
-    FancyPopup.close = close;
+    FancyPopup.api.close = close;
 
-    FancyPopup.resize = resize;
+    FancyPopup.api.resize = resize;
 
     Fancy.settings[ NAME ] = {
         theme    : 'blunt',
@@ -170,8 +164,8 @@
     };
 
 
-    Fancy.popup = Fancy.api.popup = function ( settings ) {
-        return new FancyPopup ( settings );
+    Fancy.popup = function ( settings ) {
+        return new FancyPopup( settings );
     };
 
-}) ( window, jQuery );
+})( window, jQuery );
